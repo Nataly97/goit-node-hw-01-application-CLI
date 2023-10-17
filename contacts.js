@@ -26,7 +26,6 @@ function getContactById(contactId) {
     });
 }
 
-
 function removeContact(contactId) {
     fs.readFile(contactsPath, "utf-8", (error, data) => {
         if (error) {
@@ -36,13 +35,11 @@ function removeContact(contactId) {
         contacts.forEach((contact) => {
             if (contact.id === contactId) {
                 contacts.splice(contacts.indexOf(contact), 1);
-                console.table(contacts);
-            
                 fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2), (writeError) => {
                     if (writeError) {
                         console.log(writeError);
                     } else {
-                        console.log('Contacto agregado con éxito.');
+                        console.log('Contacto eliminado con éxito.');
                     }
                 });
             }
@@ -52,19 +49,34 @@ function removeContact(contactId) {
 
 function addContact(name, email, phone) {
     let id = nanoid.nanoid();
+    let newContact = {
+        id: id,
+        name: name,
+        email: email,
+        phone: phone,
+    }
     fs.readFile(contactsPath, "utf-8", (error, data) => {
         if (error) {
-            console.log(error);
+            console.log("Error al cargar el archivo", error);
+        } else {
+            try {
+                const contacts = JSON.parse(data);
+                contacts.push(newContact);
+                const contactJSON = JSON.stringify(contacts, null, 2);
+                fs.writeFile(contactsPath, `\n${contactJSON}`, (writeError) => {
+                    if (writeError) {
+                        console.error("Error al crear el contacto:", writeError);
+                    } else {
+                        console.log("Nuevo contacto creado.");
+                    }
+                })
+            } catch (error) {
+                console.error("Error al cargar el archivo de contactos:", error);
+            }
         }
-        const contacts = JSON.parse(data.toString());
-        let newContact = {
-            id: id,
-            name: name,
-            email: email,
-            phone: phone,
-        }
-        contacts.push(newContact);
-    })
+    });
+
+
 }
 
 module.exports = {
@@ -72,5 +84,4 @@ module.exports = {
     getContactById,
     removeContact,
     addContact,
-    contactsPath,
-};
+};  
