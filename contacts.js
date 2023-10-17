@@ -72,4 +72,5 @@ module.exports = {
     getContactById,
     removeContact,
     addContact,
+    contactsPath,
 };
